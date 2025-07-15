@@ -1,0 +1,83 @@
+<!-- templates/landing.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Linklet – Passwordless Authentication</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <div class="navbar">
+      <div class="logo">🔗 Linklet</div>
+      <nav>
+        <a href="#features">Features</a>
+        <a href="#how">How it Works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="/login">Try Now</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Say Goodbye to Passwords</h1>
+    <p>Linklet makes authentication frictionless and secure using magic links and AI-driven risk detection.</p>
+    <a href="/login" class="btn-primary">Try it Free</a>
+  </section>
+
+  <section id="features" class="features">
+    <h2>Why Linklet?</h2>
+    <div class="feature-grid">
+      <div class="feature">
+        <h3>🔐 Passwordless Login</h3>
+        <p>Log in with just a link. No password leaks. No phishing traps.</p>
+      </div>
+      <div class="feature">
+        <h3>🧠 AI Risk Engine</h3>
+        <p>Our ML model scores login attempts and prevents fraud dynamically.</p>
+      </div>
+      <div class="feature">
+        <h3>📩 OTP Backup</h3>
+        <p>Fallback to OTP only when necessary — seamless yet secure.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" class="how-it-works">
+    <h2>How it Works</h2>
+    <ol>
+      <li>User enters their email</li>
+      <li>Linklet sends a secure magic link</li>
+      <li>AI risk check runs on click</li>
+      <li>Optional OTP if login is suspicious</li>
+      <li>User logs in securely – no password!</li>
+    </ol>
+  </section>
+
+  <section id="pricing" class="pricing">
+    <h2>Pricing</h2>
+    <div class="plans">
+      <div class="plan">
+        <h3>Free</h3>
+        <p>✓ 100 logins/month<br>✓ Magic link support<br>✓ Community support</p>
+        <a href="/login" class="btn-secondary">Get Started</a>
+      </div>
+      <div class="plan popular">
+        <h3>Pro</h3>
+        <p>✓ 10,000 logins<br>✓ Custom branding<br>✓ Risk analytics<br>✓ Email & OTP</p>
+        <a href="/login" class="btn-primary">Start Free Trial</a>
+      </div>
+      <div class="plan">
+        <h3>Enterprise</h3>
+        <p>✓ Unlimited logins<br>✓ Webhooks + SDK<br>✓ Dedicated support<br>✓ SLA guarantee</p>
+        <a href="/contact" class="btn-secondary">Contact Us</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 Linklet – Built with ❤️ for secure logins</p>
+  </footer>
+</body>
+</html>

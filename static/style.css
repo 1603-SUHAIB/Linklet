@@ -1,0 +1,124 @@
+/* static/style.css */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f9fbfc;
+  color: #222;
+}
+
+header {
+  background: #fff;
+  padding: 20px 40px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.navbar nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: #444;
+}
+
+.hero {
+  padding: 100px 20px;
+  text-align: center;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: white;
+}
+
+.hero h1 {
+  font-size: 3rem;
+}
+
+.btn-primary {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: white;
+  color: #4f46e5;
+  font-weight: bold;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.features, .how-it-works, .pricing {
+  padding: 60px 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.features h2, .how-it-works h2, .pricing h2 {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.feature-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.feature {
+  flex: 1 1 250px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+}
+
+.how-it-works ol {
+  list-style-position: inside;
+  line-height: 1.8;
+  font-size: 1.1rem;
+}
+
+.plans {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.plan {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  width: 250px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+  text-align: center;
+}
+
+.plan.popular {
+  border: 2px solid #4f46e5;
+}
+
+.btn-secondary {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #f3f4f6;
+  color: #111;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+footer {
+  text-align: center;
+  padding: 30px;
+  background: #f3f4f6;
+  margin-top: 40px;
+}
