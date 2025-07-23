@@ -260,17 +260,18 @@ def issue_magic_link():
     email = session.get('2fa_passed_email')
     if not email: return jsonify({"success": False, "error": "Authentication failed. Please start over."}), 403
     token = create_magic_link_token(email)
-    magic_link = url_for('verify_magic_link', token=token, _external=True)
-    subject = "Your Magic Login Link – Linklet"
-    body = f"Hello,\n\nClick the magic login link below to sign in:\n\n{magic_link}\n\nThis link is for one-time use and will expire in 5 minutes."
+    # FIX: Changed 'verify-link' to 'verify_link' to match the function name.
+    magic_link = url_for('verify_link', token=token, _external=True)
+    subject = "Your Login Link – Linklet"
+    body = f"Hello,\n\nClick the login link below to sign in:\n\n{magic_link}\n\nThis link is for one-time use and will expire in 5 minutes."
     send_email(email, subject, body)
-    return jsonify({"success": True, "message": f"A magic link has been sent to {email}."})
+    return jsonify({"success": True, "message": f"A link has been sent to {email}."})
 
-@app.route('/verify-magic-link')
-def verify_magic_link():
+@app.route('/verify-link')
+def verify_link():
     token = request.args.get('token')
     payload = verify_magic_link_token(token)
-    if not payload: return render_template("error.html", error_title="Link Invalid", error_message="This magic link is invalid, expired, or has already been used."), 403
+    if not payload: return render_template("error.html", error_title="Link Invalid", error_message="This link is invalid, expired, or has already been used."), 403
     email = payload["email"]
     mongo.db.magic_tokens.insert_one({"jti": payload["jti"], "created_at": datetime.now(timezone.utc)})
     session.clear()
