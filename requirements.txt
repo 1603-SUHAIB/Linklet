@@ -10,3 +10,4 @@ Pillow
 Flask-WTF
 Flask-Limiter
 requests
+gunicorn
