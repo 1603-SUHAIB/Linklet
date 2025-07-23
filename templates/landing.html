@@ -1,83 +1,682 @@
-<!-- templates/landing.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Linklet – Passwordless Authentication</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linklet - Cybernetic Passwordless Authentication</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #00bfff;
+            --secondary-color: #ffffff;
+            --background-color: #00050a;
+            --dark-section-bg: #0c0c0c;
+            --glow-color: rgba(0, 191, 255, 0.7);
+            --glow-color-soft: rgba(0, 191, 255, 0.2);
+            --accent-color: #00e5ff;
+            --error-color: #ff3366;
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background-color: var(--background-color);
+            color: var(--secondary-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Scanline Overlay 
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0px, rgba(0, 0, 0, 0.5) 1px, transparent 4px);
+            pointer-events: none;
+            z-index: 10000;
+            animation: scanline 20s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100vh; }
+        }*/
+
+        /* --- NEW CURSOR V2 --- */
+        .cursor-ring {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s ease, width 0.2s ease, height 0.2s ease;
+            will-change: transform;
+        }
+        .cursor-dot {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease-out;
+        }
+        .cursor-ring.hover {
+            width: 50px;
+            height: 50px;
+            background-color: var(--glow-color-soft);
+        }
+        
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 5, 10, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 191, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            letter-spacing: 1px;
+            padding: 0.5rem 0;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover::after, .nav-links a.active::after {
+            width: 100%;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            min-height: 700px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--background-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* --- NEW INTERACTIVE CANVAS BACKGROUND --- */
+        #interactive-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .hero-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            width: 100%;
+            padding: 0 2rem;
+            z-index: 2;
+            position: relative;
+        }
+        
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-shadow: 0 0 15px var(--glow-color);
+            letter-spacing: 2px;
+            line-height: 1.2;
+        }
+        
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: #cccccc;
+            max-width: 500px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: transparent;
+            color: var(--primary-color);
+            text-decoration: none;
+            border: 2px solid var(--primary-color);
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            transition: all 0.6s ease;
+            z-index: -1;
+        }
+        
+        .cta-button:hover {
+            color: var(--glow-color);
+            box-shadow: 0 0 30px var(--glow-color);
+            transform: translateY(-3px);
+        }
+        
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .hero-interactive-panel {
+            flex-basis: 45%;
+            height: 350px;
+            background: rgba(0, 191, 255, 0.05);
+            border: 1px solid rgba(0, 191, 255, 0.2);
+            backdrop-filter: blur(5px);
+            padding: 1rem;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+        }
+        
+        .panel-header {
+            display: flex;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 191, 255, 0.2);
+        }
+        .panel-dots { display: flex; gap: 0.5rem; }
+        .panel-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .panel-dot:nth-child(1) { background: var(--error-color); }
+        .panel-dot:nth-child(2) { background: #ffcc00; }
+        .panel-dot:nth-child(3) { background: var(--primary-color); }
+        .panel-title { color: var(--primary-color); margin-left: 1rem; font-weight: bold; }
+
+        .panel-content {
+            padding-top: 1.5rem;
+            font-size: 1rem;
+            color: #d1d1d1;
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        .typing-cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background: var(--primary-color);
+            animation: blink 1s step-end infinite;
+            vertical-align: bottom;
+        }
+
+        .section {
+            padding: 6rem 0;
+        }
+        
+        .section-dark { 
+            background: var(--dark-section-bg); 
+            border-top: 1px solid rgba(0, 191, 255, 0.1);
+            border-bottom: 1px solid rgba(0, 191, 255, 0.1);
+        }
+        
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 2rem; 
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #cccccc;
+            margin-bottom: 4rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .card {
+            background: rgba(0, 191, 255, 0.02);
+            padding: 2rem;
+            border: 1px solid rgba(0, 191, 255, 0.1);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            background: rgba(0, 191, 255, 0.05);
+            border-color: rgba(0, 191, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .card p { color: #cccccc; }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        @media (max-width: 900px) {
+            .hero-container { flex-direction: column; text-align: center; }
+            .hero-content { margin-bottom: 3rem; }
+            .hero-interactive-panel { width: 100%; max-width: 500px; }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero-content h1 { font-size: 2.5rem; }
+            .grid-3 { grid-template-columns: 1fr; }
+        }
+
+    </style>
 </head>
 <body>
-  <header>
-    <div class="navbar">
-      <div class="logo">🔗 Linklet</div>
-      <nav>
-        <a href="#features">Features</a>
-        <a href="#how">How it Works</a>
-        <a href="#pricing">Pricing</a>
-        <a href="/login">Try Now</a>
-      </nav>
-    </div>
-  </header>
+    <div class="cursor-ring"></div>
+    <div class="cursor-dot"></div>
 
-  <section class="hero">
-    <h1>Say Goodbye to Passwords</h1>
-    <p>Linklet makes authentication frictionless and secure using magic links and AI-driven risk detection.</p>
-    <a href="/login" class="btn-primary">Try it Free</a>
-  </section>
+    <header id="main-header">
+        <nav>
+            <div class="logo">🔗 Linklet</div>
+            <ul class="nav-links">
+                <li><a href="#home" class="glitch-hover active">Home</a></li>
+                <li><a href="#about" class="glitch-hover">About</a></li>
+                <li><a href="#how-it-works" class="glitch-hover">How it Works</a></li>
+                <li><a href="#benefits" class="glitch-hover">Benefits</a></li>
+            </ul>
+        </nav>
+    </header>
 
-  <section id="features" class="features">
-    <h2>Why Linklet?</h2>
-    <div class="feature-grid">
-      <div class="feature">
-        <h3>🔐 Passwordless Login</h3>
-        <p>Log in with just a link. No password leaks. No phishing traps.</p>
-      </div>
-      <div class="feature">
-        <h3>🧠 AI Risk Engine</h3>
-        <p>Our ML model scores login attempts and prevents fraud dynamically.</p>
-      </div>
-      <div class="feature">
-        <h3>📩 OTP Backup</h3>
-        <p>Fallback to OTP only when necessary — seamless yet secure.</p>
-      </div>
-    </div>
-  </section>
+    <section id="home" class="hero">
+        <canvas id="interactive-canvas"></canvas>
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 data-scramble="Say Goodbye to Passwords">Say Goodbye to Passwords</h1>
+                <p class="reveal">Linklet makes authentication frictionless and secure using magic links and AI-driven threat detection. Welcome to the future of identity.</p>
+                <a href="/login" class="cta-button glitch-hover reveal">Try it Free</a>
+            </div>
+            <div class="hero-interactive-panel reveal">
+                <div class="panel-header">
+                    <div class="panel-dots">
+                        <div class="panel-dot"></div><div class="panel-dot"></div><div class="panel-dot"></div>
+                    </div>
+                    <div class="panel-title">Linklet Auth Status</div>
+                </div>
+                <div class="panel-content">
+                    <p id="typing-text"></p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <section id="how" class="how-it-works">
-    <h2>How it Works</h2>
-    <ol>
-      <li>User enters their email</li>
-      <li>Linklet sends a secure magic link</li>
-      <li>AI risk check runs on click</li>
-      <li>Optional OTP if login is suspicious</li>
-      <li>User logs in securely – no password!</li>
-    </ol>
-  </section>
+    <section id="about" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title reveal" data-scramble="About Linklet">About Linklet</h2>
+            <p class="section-subtitle reveal">We are a team of cybersecurity experts and engineers on a mission to eliminate passwords and make the internet a safer place for everyone.</p>
+            <div class="grid-3">
+                <div class="reveal">
+                    <div class="card">
+                        <div class="card-icon">🎯</div>
+                        <h3>Our Mission</h3>
+                        <p>To make authentication seamless, secure, and accessible. We believe security shouldn't compromise user experience.</p>
+                    </div>
+                </div>
+                <div class="reveal" style="transition-delay: 0.2s;">
+                    <div class="card">
+                        <div class="card-icon">🚀</div>
+                        <h3>Our Vision</h3>
+                        <p>A world where digital identity is fluid and protected by intelligent, frictionless authentication, rendering passwords obsolete.</p>
+                    </div>
+                </div>
+                 <div class="reveal" style="transition-delay: 0.4s;">
+                    <div class="card">
+                        <div class="card-icon">🧠</div>
+                        <h3>Our Technology</h3>
+                        <p>Leveraging cryptographic principles and machine learning to create authentication that is both user-friendly and fortress-strong.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <section id="pricing" class="pricing">
-    <h2>Pricing</h2>
-    <div class="plans">
-      <div class="plan">
-        <h3>Free</h3>
-        <p>✓ 100 logins/month<br>✓ Magic link support<br>✓ Community support</p>
-        <a href="/login" class="btn-secondary">Get Started</a>
-      </div>
-      <div class="plan popular">
-        <h3>Pro</h3>
-        <p>✓ 10,000 logins<br>✓ Custom branding<br>✓ Risk analytics<br>✓ Email & OTP</p>
-        <a href="/login" class="btn-primary">Start Free Trial</a>
-      </div>
-      <div class="plan">
-        <h3>Enterprise</h3>
-        <p>✓ Unlimited logins<br>✓ Webhooks + SDK<br>✓ Dedicated support<br>✓ SLA guarantee</p>
-        <a href="/contact" class="btn-secondary">Contact Us</a>
-      </div>
-    </div>
-  </section>
+    <section id="how-it-works" class="section">
+        <div class="container">
+            <h2 class="section-title reveal" data-scramble="How It Works">How It Works</h2>
+            <p class="section-subtitle reveal">Our multi-layered approach ensures both security and a seamless user experience.</p>
+            <div class="grid-3">
+                <div class="card reveal">
+                    <div class="card-icon">1</div>
+                    <h3>Bot Protection</h3>
+                    <p>Start by solving our interactive rotation captcha to prove you're human.</p>
+                </div>
+                <div class="card reveal" style="transition-delay: 0.2s;">
+                    <div class="card-icon">2</div>
+                    <h3>Multi-Factor Authentication</h3>
+                    <p>Verify your identity with a time-sensitive code from your authenticator app (2FA).</p>
+                </div>
+                <div class="card reveal" style="transition-delay: 0.4s;">
+                    <div class="card-icon">3</div>
+                    <h3>Secure Access</h3>
+                    <p>Choose your final login method: a single-use magic link or secure OAuth with Google.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="benefits" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title reveal" data-scramble="Unparalleled Benefits">Unparalleled Benefits</h2>
+            <p class="section-subtitle reveal">Discover why our security model is the superior choice for modern applications.</p>
+            <div class="grid-3">
+                 <div class="card reveal">
+                    <div class="card-icon">🛡️</div>
+                    <h3>Multi-Layered Security</h3>
+                    <p>Combines 2FA, modern captchas, rate limiting, and account lockouts to provide robust protection against automated and targeted attacks.</p>
+                </div>
+                 <div class="card reveal" style="transition-delay: 0.2s;">
+                    <div class="card-icon">🔔</div>
+                    <h3>Proactive Threat Detection</h3>
+                    <p>Receive instant email notifications for logins from new devices, allowing you to monitor your account's security in real-time.</p>
+                </div>
+                 <div class="card reveal" style="transition-delay: 0.4s;">
+                    <div class="card-icon">⚙️</div>
+                    <h3>Complete Admin Control</h3>
+                    <p>A full-featured admin panel allows for user approval, role management (admin/user), and account creation/deletion.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <footer>
-    <p>© 2025 Linklet – Built with ❤️ for secure logins</p>
-  </footer>
+    <footer style="background: #000; padding: 4rem 0 2rem; border-top: 1px solid rgba(0, 191, 255, 0.2);">
+        <div class="container" style="text-align: center; color: #888;">
+            <div class="logo" style="margin-bottom: 1rem;">🔗 Linklet</div>
+            <p>&copy; 2025 Linklet. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Custom Cursor Logic ---
+            const cursorRing = document.querySelector('.cursor-ring');
+            const cursorDot = document.querySelector('.cursor-dot');
+            let mouseX = 0, mouseY = 0;
+            let dotX = 0, dotY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+            
+            function animateCursor() {
+                cursorRing.style.left = `${mouseX}px`;
+                cursorRing.style.top = `${mouseY}px`;
+                dotX += (mouseX - dotX) * 0.2;
+                dotY += (mouseY - dotY) * 0.2;
+                cursorDot.style.left = `${dotX}px`;
+                cursorDot.style.top = `${dotY}px`;
+                requestAnimationFrame(animateCursor);
+            }
+            animateCursor();
+
+            document.querySelectorAll('a, button, .card').forEach(el => {
+                el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+                el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+            });
+
+            // --- Interactive Canvas Background ---
+            const canvas = document.getElementById('interactive-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particlesArray;
+            let time = 0;
+
+            const mouse = {
+                x: null,
+                y: null,
+                radius: 150
+            }
+
+            window.addEventListener('mousemove', function(event){
+                mouse.x = event.x;
+                mouse.y = event.y;
+            });
+
+            class Particle {
+                constructor(x, y, directionX, directionY, size, color){
+                    this.x = x;
+                    this.y = y;
+                    this.directionX = directionX;
+                    this.directionY = directionY;
+                    this.size = size;
+                    this.color = color;
+                    this.baseAlpha = 0.1 + Math.random() * 0.2;
+                    this.alpha = this.baseAlpha;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                    ctx.fillStyle = `rgba(0, 191, 255, ${this.alpha})`;
+                    ctx.fill();
+                }
+                update() {
+                    if (this.x > canvas.width || this.x < 0) {
+                        this.directionX = -this.directionX;
+                    }
+                    if (this.y > canvas.height || this.y < 0) {
+                        this.directionY = -this.directionY;
+                    }
+
+                    // Pulsing effect
+                    this.alpha = this.baseAlpha + (Math.sin(time * 0.1 + this.x * 0.01) * this.baseAlpha);
+
+                    // Mouse interaction
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx*dx + dy*dy);
+                    if (distance < mouse.radius){
+                        this.alpha = Math.min(1, this.alpha + (1 - distance / mouse.radius) * 0.8);
+                    }
+
+                    this.x += this.directionX;
+                    this.y += this.directionY;
+                    this.draw();
+                }
+            }
+
+            function init() {
+                particlesArray = [];
+                let numberOfParticles = (canvas.height * canvas.width) / 9000;
+                for (let i = 0; i < numberOfParticles; i++){
+                    let size = (Math.random() * 2) + 1;
+                    let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                    let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                    let directionX = (Math.random() * .4) - .2;
+                    let directionY = (Math.random() * .4) - .2;
+                    let color = 'rgba(0, 191, 255, 0.8)';
+                    particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+                }
+            }
+
+            function connect() {
+                let opacityValue = 1;
+                for (let a = 0; a < particlesArray.length; a++) {
+                    for (let b = a; b < particlesArray.length; b++) {
+                        let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x))
+                        + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
+                        if (distance < (canvas.width/7) * (canvas.height/7)) {
+                            let combinedAlpha = particlesArray[a].alpha * particlesArray[b].alpha;
+                            opacityValue = Math.min(0.5, combinedAlpha) * (1 - (distance/20000));
+                            if (opacityValue > 0) {
+                                ctx.strokeStyle = `rgba(0, 191, 255, ${opacityValue})`;
+                                ctx.lineWidth = 1;
+                                ctx.beginPath();
+                                ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                                ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                }
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                ctx.clearRect(0,0,innerWidth, innerHeight);
+                time++;
+
+                for (let i = 0; i < particlesArray.length; i++) {
+                    particlesArray[i].update();
+                }
+                connect();
+            }
+
+            window.addEventListener('resize', function(){
+                canvas.width = innerWidth;
+                canvas.height = innerHeight;
+                init();
+            });
+
+            window.addEventListener('mouseout', function(){
+                mouse.x = undefined;
+                mouse.y = undefined;
+            });
+
+            init();
+            animate();
+
+            // --- Other Animations ---
+            const typingTextElement = document.getElementById('typing-text');
+            const statusMessages = ['Initializing Secure Session...', 'Authenticating client: [OK]', 'Analyzing risk factors...', 'AI Threat Score: 0.02 [LOW_RISK]', 'STATUS: Awaiting user action.'];
+            let messageIndex = 0;
+            let charIndex = 0;
+
+            function typeWriter() {
+                if (messageIndex >= statusMessages.length) messageIndex = 0; 
+                const currentMessage = statusMessages[messageIndex];
+                if (charIndex < currentMessage.length) {
+                    typingTextElement.innerHTML = currentMessage.substring(0, charIndex + 1) + '<span class="typing-cursor"></span>';
+                    charIndex++;
+                    setTimeout(typeWriter, 50);
+                } else {
+                    charIndex = 0;
+                    messageIndex++;
+                    setTimeout(typeWriter, 2000);
+                }
+            }
+            
+            const revealElements = document.querySelectorAll('.reveal');
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('visible');
+                });
+            }, { threshold: 0.1 });
+            revealElements.forEach(el => revealObserver.observe(el));
+            
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+
+            setTimeout(typeWriter, 1500);
+        });
+    </script>
 </body>
 </html>

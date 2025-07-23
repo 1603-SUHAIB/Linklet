@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="__CSRF_TOKEN_PLACEHOLDER__">
+    <title>Dashboard /// SECURE_NODE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-cyan: #08d9d6;
+            --primary-blue: #252a34;
+            --dark-bg: #0d1117;
+            --card-bg: #161b22;
+            --border-color: rgba(8, 217, 214, 0.2);
+            --text-primary: #eaeaea;
+            --text-secondary: #8b949e;
+        }
+
+        body {
+            font-family: 'Chakra Petch', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            background-image: 
+                linear-gradient(rgba(8, 217, 214, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(8, 217, 214, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pro-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            animation: fadeIn 0.5s ease-out;
+            box-shadow: 0 0 15px rgba(8, 217, 214, 0.1);
+            backdrop-filter: blur(2px);
+        }
+        
+        .pro-header {
+            color: var(--primary-cyan);
+            text-shadow: 0 0 8px rgba(8, 217, 214, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .pro-btn {
+            background-color: var(--primary-cyan);
+            color: var(--dark-bg);
+            transition: all 0.2s;
+            border-radius: 0.25rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .pro-btn:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 0 15px rgba(8, 217, 214, 0.5);
+        }
+        
+        .pro-btn-secondary {
+             background-color: var(--primary-blue);
+             color: var(--text-primary);
+             border: 1px solid var(--border-color);
+        }
+        .pro-btn-secondary:hover {
+            background-color: #343a4a;
+            filter: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body class="bg-dark-bg text-text-primary">
+    <div class="min-h-screen flex flex-col">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="w-full fixed top-0 left-0 z-50 p-4">
+                {% for category, message in messages %}
+                <div id="flash-message" class="pro-card max-w-md mx-auto p-4 flex justify-between items-center {% if category == 'error' %} bg-red-500/20 border-red-500/30 text-red-300 {% else %} bg-green-500/20 border-green-500/30 text-green-300 {% endif %}">
+                    <span>{{ message }}</span>
+                    <button onclick="this.parentElement.style.display='none'">&times;</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        <main class="flex-grow">
+            <div class="border-b border-white/10">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                    <h1 class="pro-header text-2xl font-bold">Dashboard</h1>
+                    <form id="logout-form" class="inline">
+                         <button type="submit" class="pro-btn px-4 py-2 text-sm">Logout</button>
+                    </form>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <div class="pro-card p-8">
+                    <h2 class="text-2xl font-semibold text-text-primary">Welcome back, <span class="text-primary-cyan">{{ user.email }}</span>!</h2>
+                    <p class="mt-2 text-text-secondary">System connection established. All services are operational.</p>
+                    
+                    <div class="mt-8 border-t border-[var(--border-color)] pt-8">
+                        <h3 class="text-lg font-medium text-text-primary uppercase">Account Status</h3>
+                        <dl class="mt-4 grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-text-secondary">User Role</dt>
+                                <dd class="mt-1 text-sm text-text-primary">{% if user.is_admin %}<span class="text-indigo-400">Administrator</span>{% else %}<span>Standard User</span>{% endif %}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-text-secondary">Two-Factor Authentication</dt>
+                                <dd class="mt-1 text-sm text-text-primary">{% if user.totp_secret %}<span class="text-green-400">Enabled</span>{% else %}<span class="text-red-400">Not Enabled</span><a href="{{ url_for('setup_2fa') }}" class="text-primary-cyan hover:brightness-125 text-xs font-semibold ml-2">Set up now</a>{% endif %}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-text-secondary">Last Login</dt>
+                                <dd class="mt-1 text-sm text-text-primary">{{ user.last_login.strftime('%Y-%m-%d %H:%M:%S') if user.last_login else 'N/A' }} UTC</dd>
+                            </div>
+                             <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-text-secondary">Member Since</dt>
+                                <dd class="mt-1 text-sm text-text-primary">{{ user.created_at.strftime('%Y-%m-%d') }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    {% if user.is_admin %}
+                    <div class="mt-8 border-t border-[var(--border-color)] pt-8">
+                         <a href="{{ url_for('admin_panel') }}" class="pro-btn pro-btn-secondary px-5 py-2.5 text-sm">Access Admin Panel</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+        <footer class="text-center py-4 text-sm text-gray-500"><p>&copy; 2025 LinkletApp. All rights reserved.</p></footer>
+    </div>
+    <script>
+        document.getElementById('logout-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const response = await fetch("{{ url_for('logout') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken }
+            });
+            const data = await response.json();
+            if (data.success) { window.location.href = data.redirect_url; }
+        });
+    </script>
+</body>
+</html>

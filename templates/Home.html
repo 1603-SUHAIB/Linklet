@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linklet - Passwordless Authentication Solutions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Custom Reactive Cursor */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #00ff00, transparent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease;
+            box-shadow: 0 0 20px #00ff00;
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: #00ff00;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .cursor.hover {
+            transform: scale(2);
+            background: radial-gradient(circle, #00ff00, #00ff0050);
+        }
+
+        /* Neon glow effect */
+        .neon-text {
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00;
+        }
+
+        .neon-border {
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 10px #00ff00, inset 0 0 10px rgba(0, 255, 0, 0.1);
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            border-bottom: 1px solid #00ff00;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #00ff00;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Enhanced Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #000000 0%, #001100 50%, #000000 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%2300ff00" stroke-width="0.5" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            animation: matrix 20s linear infinite;
+        }
+
+        @keyframes matrix {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100px); }
+        }
+
+        /* Floating Elements */
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-icon {
+            position: absolute;
+            font-size: 2rem;
+            color: rgba(0, 255, 0, 0.3);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-icon:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .floating-icon:nth-child(2) { top: 60%; left: 85%; animation-delay: 2s; }
+        .floating-icon:nth-child(3) { top: 80%; left: 15%; animation-delay: 4s; }
+        .floating-icon:nth-child(4) { top: 30%; left: 80%; animation-delay: 1s; }
+        .floating-icon:nth-child(5) { top: 70%; left: 70%; animation-delay: 3s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Hero Content Container */
+        .hero-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            width: 100%;
+            padding: 0 2rem;
+            z-index: 2;
+            position: relative;
+        }
+
+        .hero-content {
+            flex: 1;
+            max-width: 600px;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ffffff, #00ff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px #00ff0050); }
+            to { filter: drop-shadow(0 0 30px #00ff0080); }
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            color: #cccccc;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: transparent;
+            color: #00ff00;
+            text-decoration: none;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 1s ease-out 1s both;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            background: #00ff00;
+            color: #000000;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Interactive Sliding Windows */
+        .hero-interactive {
+            flex: 1;
+            max-width: 500px;
+            height: 400px;
+            position: relative;
+            margin-left: 3rem;
+        }
+
+        .sliding-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+            background: rgba(0, 255, 0, 0.05);
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide.prev {
+            transform: translateX(-100%);
+        }
+
+        .slide-icon {
+            font-size: 4rem;
+            color: #00ff00;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px #00ff00;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .slide h3 {
+            font-size: 1.8rem;
+            color: #00ff00;
+            margin-bottom: 1rem;
+            text-align: center;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .slide p {
+            color: #cccccc;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* Slide Navigation */
+        .slide-nav {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(0, 255, 0, 0.3);
+            border: 1px solid #00ff00;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        .nav-dot:hover {
+            background: rgba(0, 255, 0, 0.6);
+        }
+
+        /* Interactive Demo Window */
+        .demo-window {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+            animation: slideInDemo 2s ease-out 2s both;
+        }
+
+        @keyframes slideInDemo {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .demo-content {
+            font-size: 0.8rem;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+        }
+
+        .typing-effect {
+            border-right: 2px solid #00ff00;
+            animation: typing 3s steps(40) infinite, blink 1s infinite;
+        }
+
+        @keyframes typing {
+            0% { width: 0; }
+            50% { width: 100%; }
+            100% { width: 0; }
+        }
+
+        @keyframes blink {
+            0%, 50% { border-color: #00ff00; }
+            51%, 100% { border-color: transparent; }
+        }
+
+        /* Particle System */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: particleFloat 8s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            padding: 5rem 0;
+        }
+
+        /* Section Backgrounds */
+        .section-dark {
+            background: #111111;
+            position: relative;
+        }
+
+        .section-gradient {
+            background: linear-gradient(135deg, #000000 0%, #002200 50%, #000000 100%);
+        }
+
+        .section-dark::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 3rem;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #cccccc;
+            margin-bottom: 4rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Card Styles */
+        .card {
+            background: rgba(0, 255, 0, 0.05);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid #00ff00;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 255, 0, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+            animation: shimmer 1s ease-in-out;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.3);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            color: #00ff00;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #00ff00;
+        }
+
+        .card p {
+            color: #cccccc;
+            line-height: 1.6;
+        }
+
+        /* Step Flow */
+        .step-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 3rem 0;
+            position: relative;
+        }
+
+        .step-flow::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00ff00, rgba(0, 255, 0, 0.3), #00ff00);
+            z-index: 1;
+        }
+
+        .step {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            min-width: 200px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .step-number {
+            background: #00ff00;
+            color: #000000;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+            font-size: 1.2rem;
+        }
+
+        .step h4 {
+            color: #00ff00;
+            margin-bottom: 0.5rem;
+        }
+
+        .step p {
+            color: #cccccc;
+            font-size: 0.9rem;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'JavaScript';
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            font-size: 0.8rem;
+            color: rgba(0, 255, 0, 0.6);
+        }
+
+        /* Pricing Cards */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .pricing-card {
+            background: rgba(0, 255, 0, 0.05);
+            padding: 2.5rem;
+            border-radius: 15px;
+            border: 2px solid #00ff00;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card.featured {
+            transform: scale(1.05);
+            background: rgba(0, 255, 0, 0.1);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 255, 0, 0.2);
+        }
+
+        .pricing-card.featured:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+
+        .plan-name {
+            font-size: 1.8rem;
+            color: #00ff00;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .plan-price {
+            font-size: 3rem;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-period {
+            color: #cccccc;
+            margin-bottom: 2rem;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .plan-features li {
+            color: #ffffff;
+            margin-bottom: 0.8rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .plan-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #00ff00;
+            font-weight: bold;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .plan-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: transparent;
+            color: #00ff00;
+            text-decoration: none;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .plan-button:hover {
+            background: #00ff00;
+            color: #000000;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .featured .plan-button {
+            background: #00ff00;
+            color: #000000;
+        }
+
+        .featured .plan-button:hover {
+            background: transparent;
+            color: #00ff00;
+        }
+
+        /* Security Badge */
+        .security-badges {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            text-align: center;
+            color: #00ff00;
+            font-weight: bold;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-interactive {
+                margin-left: 0;
+                margin-top: 2rem;
+                max-width: 100%;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .step-flow {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .step-flow::before {
+                display: none;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00ff00;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00cc00;
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-trail"></div>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">🔗 Linklet</div>
+            <ul class="nav-links">
+                <li><a href="Home.html">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="how.html">How it Works</a></li>
+                <li><a href="#benefits">Benefits</a></li>
+                <li><a href="#security">Security</a></li>
+                <li><a href="#integration">Integration</a></li>
+                <li><a href="pricing.html">Pricing</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Enhanced Hero Section -->
+    <section id="home" class="hero">
+        <!-- Floating Elements -->
+        <div class="floating-elements">
+            <div class="floating-icon">🔐</div>
+            <div class="floating-icon">🔗</div>
+            <div class="floating-icon">⚡</div>
+            <div class="floating-icon">🛡️</div>
+            <div class="floating-icon">🧠</div>
+        </div>
+
+        <!-- Particle System -->
+        <div class="particles" id="particles"></div>
+
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Say Goodbye to Passwords</h1>
+                <p>Linklet makes authentication frictionless and secure using magic links and AI-driven risk detection.</p>
+                <a href="#pricing" class="cta-button">Try it Free</a>
+            </div>
+
+            <!-- Interactive Sliding Windows -->
+            <div class="hero-interactive">
+                <div class="sliding-container">
+                    <div class="slide active">
+                        <div class="slide-icon">🔐</div>
+                        <h3>Passwordless Login</h3>
+                        <p>Log in with just a link. No password leaks. No phishing traps.</p>
+                    </div>
+                    <div class="slide">
+                        <div class="slide-icon">🧠</div>
+                        <h3>AI Risk Engine</h3>
+                        <p>Our ML model scores login attempts and prevents fraud dynamically.</p>
+                    </div>
+                    <div class="slide">
+                        <div class="slide-icon">📱</div>
+                        <h3>OTP Backup</h3>
+                        <p>Fallback to OTP only when necessary — seamless yet secure.</p>
+                    </div>
+                    <div class="slide-nav">
+                        <div class="nav-dot active" data-slide="0"></div>
+                        <div class="nav-dot" data-slide="1"></div>
+                        <div class="nav-dot" data-slide="2"></div>
+                    </div>
+                </div>
+
+                <!-- Interactive Demo Window -->
+                <div class="demo-window">
+                    <div class="demo-content">
+                        <div class="typing-effect">
+                            > Generating magic link...<br>
+                            > Link sent to user@email.com<br>
+                            > Authentication successful ✓
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Linklet Section -->
+    <section id="about" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title">About Linklet</h2>
+            <div class="grid-2">
+                <div>
+                    <h3 class="neon-text" style="font-size: 2rem; margin-bottom: 1rem;">Who Are We?</h3>
+                    <p style="color: #cccccc; font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem;">
+                        Founded in 2020 by a team of cybersecurity experts and authentication specialists, Linklet emerged from a simple yet powerful vision: to eliminate the friction and security risks of traditional password-based authentication.
+                    </p>
+                    <div class="card" style="margin-bottom: 2rem;">
+                        <div class="card-icon">🎯</div>
+                        <h3>Our Mission</h3>
+                        <p>To make authentication seamless, secure, and accessible for everyone. We believe that security shouldn't come at the cost of user experience.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🚀</div>
+                        <h3>Our Vision</h3>
+                        <p>A world where passwords are obsolete, and every digital interaction is protected by intelligent, frictionless authentication.</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="card" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="card-icon" style="font-size: 4rem;">🔗</div>
+                        <h3 style="font-size: 2rem; text-align: center;">The Linklet Story</h3>
+                        <p style="text-align: center; font-size: 1.1rem;">
+                            After witnessing countless data breaches caused by weak passwords, our founders set out to create a solution that would be both more secure and more user-friendly. Today, Linklet protects millions of authentication attempts across thousands of applications worldwide.
+                        </p>
+                        <div style="text-align: center; margin-top: 2rem;">
+                            <div style="display: inline-block; margin: 0 1rem;">
+                                <div style="font-size: 2rem; color: #00ff00; font-weight: bold;">1M+</div>
+                                <div style="color: #cccccc;">Monthly Logins</div>
+                            </div>
+                            <div style="display: inline-block; margin: 0 1rem;">
+                                <div style="font-size: 2rem; color: #00ff00; font-weight: bold;">5K+</div>
+                                <div style="color: #cccccc;">Applications</div>
+                            </div>
+                            <div style="display: inline-block; margin: 0 1rem;">
+                                <div style="font-size: 2rem; color: #00ff00; font-weight: bold;">99.9%</div>
+                                <div style="color: #cccccc;">Uptime</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="section section-gradient">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">Experience the magic of passwordless authentication in three simple steps</p>
+            
+            <div class="step-flow">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h4>User Enters Email</h4>
+                    <p>User provides their email address on your login form</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h4>Magic Link Sent</h4>
+                    <p>Linklet generates a secure, time-limited magic link and sends it via email</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h4>Instant Login</h4>
+                    <p>User clicks the link and is instantly authenticated - no passwords needed!</p>
+                </div>
+            </div>
+
+            <div class="grid-2" style="margin-top: 4rem;">
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h3>Lightning Fast</h3>
+                    <p>Authentication happens in milliseconds. Our AI engine processes risk factors in real-time, ensuring both speed and security without compromise.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔒</div>
+                    <h3>Bank-Level Security</h3>
+                    <p>Each magic link is cryptographically signed, time-limited, and single-use. Our AI continuously monitors for suspicious patterns and anomalies.</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 3rem; text-align: center;">
+                <h3 class="neon-text" style="margin-bottom: 1rem;">See It In Action</h3>
+                <div class="code-block">
+                    <div style="color: #00ff00;">
+                        // Simple integration example<br>
+                        <span style="color: #ffffff;">const</span> linklet = <span style="color: #ffffff;">require</span>(<span style="color: #ffff00;">'@linklet/sdk'</span>);<br><br>
+                        
+                        <span style="color: #ffffff;">await</span> linklet.<span style="color: #00ff00;">sendMagicLink</span>({<br>
+                        &nbsp;&nbsp;email: <span style="color: #ffff00;">'user@example.com'</span>,<br>
+                        &nbsp;&nbsp;redirectUrl: <span style="color: #ffff00;">'https://yourapp.com/dashboard'</span><br>
+                        });<br><br>
+                        
+                        <span style="color: #888;">// That's it! User gets authenticated seamlessly</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits & Use Cases Section -->
+    <section id="benefits" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title">Benefits & Use Cases</h2>
+            <p class="section-subtitle">Discover why leading companies choose passwordless authentication</p>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-icon">👨‍💻</div>
+                    <h3>For Developers</h3>
+                    <p>Reduce authentication complexity, eliminate password storage risks, and improve user onboarding with just a few lines of code.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🏢</div>
+                    <h3>For Businesses</h3>
+                    <p>Increase conversion rates, reduce support tickets, and enhance security posture while providing superior user experience.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🏦</div>
+                    <h3>For Fintech</h3>
+                    <p>Meet compliance requirements, reduce fraud, and provide secure access that customers trust and regulators approve.</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 4rem;">
+                <h3 class="neon-text" style="text-align: center; margin-bottom: 2rem;">Why Passwordless Beats Passwords</h3>
+                <div class="grid-2">
+                    <div>
+                        <h4 style="color: #ff4444; margin-bottom: 1rem; font-size: 1.5rem;">❌ Traditional Passwords</h4>
+                        <ul style="color: #cccccc; line-height: 2;">
+                            <li>Vulnerable to breaches and leaks</li>
+                            <li>Users forget and reuse weak passwords</li>
+                            <li>High support costs for resets</li>
+                            <li>Poor user experience</li>
+                            <li>Compliance challenges</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 style="color: #00ff00; margin-bottom: 1rem; font-size: 1.5rem;">✅ Linklet Magic Links</h4>
+                        <ul style="color: #cccccc; line-height: 2;">
+                            <li>No passwords to steal or leak</li>
+                            <li>Always secure, unique, and time-limited</li>
+                            <li>Zero password reset requests</li>
+                            <li>Seamless one-click authentication</li>
+                            <li>Built-in compliance features</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="security-badges">
+                <div class="badge">🔒 SOC 2 Compliant</div>
+                <div class="badge">🛡️ GDPR Ready</div>
+                <div class="badge">⚡ 99.9% Uptime</div>
+                <div class="badge">🌍 Global CDN</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security & Privacy Section -->
+    <section id="security" class="section section-gradient">
+        <div class="container">
+            <h2 class="section-title">Security & Privacy</h2>
+            <p class="section-subtitle">Your security is our top priority. Here's how we protect your data and users.</p>
+
+            <div class="grid-2">
+                <div>
+                    <div class="card" style="margin-bottom: 2rem;">
+                        <div class="card-icon">🔐</div>
+                        <h3>End-to-End Encryption</h3>
+                        <p>All data is encrypted in transit and at rest using AES-256 encryption. Magic links are cryptographically signed and verified to prevent tampering.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">📊</div>
+                        <h3>Comprehensive Audit Logs</h3>
+                        <p>Every authentication attempt is logged with detailed metadata including IP, device, location, and risk score for complete visibility.</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="card" style="margin-bottom: 2rem;">
+                        <div class="card-icon">🧠</div>
+                        <h3>AI-Powered Threat Detection</h3>
+                        <p>Our machine learning engine analyzes over 50 risk factors in real-time, including behavioral patterns, device fingerprinting, and geolocation anomalies.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🏛️</div>
+                        <h3>Compliance & Certifications</h3>
+                        <p>SOC 2 Type II certified, GDPR compliant, and regularly audited by third-party security firms to ensure the highest standards.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 4rem;">
+                <h3 class="neon-text" style="text-align: center; margin-bottom: 2rem;">How Our AI Engine Works</h3>
+                <div class="card" style="max-width: 800px; margin: 0 auto;">
+                    <p style="font-size: 1.1rem; text-align: center; margin-bottom: 2rem;">
+                        Our proprietary AI engine analyzes multiple data points to create a real-time risk score for each authentication attempt:
+                    </p>
+                    <div class="grid-2">
+                        <div>
+                            <h4 style="color: #00ff00; margin-bottom: 1rem;">🔍 Risk Factors Analyzed:</h4>
+                            <ul style="color: #cccccc; line-height: 1.8;">
+                                <li>Device fingerprinting & recognition</li>
+                                <li>Geolocation and travel patterns</li>
+                                <li>Behavioral biometrics</li>
+                                <li>Network reputation analysis</li>
+                                <li>Time-based access patterns</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color: #00ff00; margin-bottom: 1rem;">⚡ Real-time Actions:</h4>
+                            <ul style="color: #cccccc; line-height: 1.8;">
+                                <li>Instant risk scoring (< 50ms)</li>
+                                <li>Adaptive authentication flows</li>
+                                <li>Automatic threat blocking</li>
+                                <li>Continuous learning & improvement</li>
+                                <li>Detailed security insights</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Integration Guides Section -->
+    <section id="integration" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title">Integration Guides</h2>
+            <p class="section-subtitle">Get up and running in minutes with our simple APIs and SDKs</p>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-icon">⚛️</div>
+                    <h3>React Integration</h3>
+                    <div class="code-block" style="margin-top: 1rem; font-size: 0.8rem;">
+                        <span style="color: #ffffff;">import</span> { useLinklet } <span style="color: #ffffff;">from</span> <span style="color: #ffff00;">'@linklet/react'</span>;<br><br>
+                        
+                        <span style="color: #ffffff;">const</span> { sendMagicLink } = <span style="color: #00ff00;">useLinklet</span>();<br><br>
+                        
+                        <span style="color: #ffffff;">await</span> <span style="color: #00ff00;">sendMagicLink</span>(email);
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🐍</div>
+                    <h3>Python Integration</h3>
+                    <div class="code-block" style="margin-top: 1rem; font-size: 0.8rem;">
+                        <span style="color: #ffffff;">from</span> linklet <span style="color: #ffffff;">import</span> Linklet<br><br>
+                        
+                        client = <span style="color: #00ff00;">Linklet</span>(api_key)<br><br>
+                        
+                        client.<span style="color: #00ff00;">send_magic_link</span>(<br>
+                        &nbsp;&nbsp;email=<span style="color: #ffff00;">"user@example.com"</span><br>
+                        )
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🟢</div>
+                    <h3>Node.js Integration</h3>
+                    <div class="code-block" style="margin-top: 1rem; font-size: 0.8rem;">
+                        <span style="color: #ffffff;">const</span> { Linklet } = <span style="color: #ffffff;">require</span>(<span style="color: #ffff00;">'linklet'</span>);<br><br>
+                        
+                        <span style="color: #ffffff;">const</span> linklet = <span style="color: #ffffff;">new</span> <span style="color: #00ff00;">Linklet</span>(apiKey);<br><br>
+                        
+                        <span style="color: #ffffff;">await</span> linklet.<span style="color: #00ff00;">sendMagicLink</span>(email);
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 4rem; text-align: center;">
+                <h3 class="neon-text" style="margin-bottom: 2rem;">Complete Integration Example</h3>
+                <div class="code-block" style="max-width: 800px; margin: 0 auto; text-align: left;">
+                    <span style="color: #888;">// 1. Install the SDK</span><br>
+                    <span style="color: #ffffff;">npm install</span> <span style="color: #00ff00;">@linklet/sdk</span><br><br>
+                    
+                    <span style="color: #888;">// 2. Initialize Linklet</span><br>
+                    <span style="color: #ffffff;">const</span> linklet = <span style="color: #ffffff;">new</span> <span style="color: #00ff00;">Linklet</span>({<br>
+                    &nbsp;&nbsp;apiKey: <span style="color: #ffff00;">'your-api-key'</span>,<br>
+                    &nbsp;&nbsp;environment: <span style="color: #ffff00;">'production'</span><br>
+                    });<br><br>
+                    
+                    <span style="color: #888;">// 3. Send magic link</span><br>
+                    <span style="color: #ffffff;">const</span> result = <span style="color: #ffffff;">await</span> linklet.<span style="color: #00ff00;">sendMagicLink</span>({<br>
+                    &nbsp;&nbsp;email: <span style="color: #ffff00;">'user@example.com'</span>,<br>
+                    &nbsp;&nbsp;redirectUrl: <span style="color: #ffff00;">'https://yourapp.com/dashboard'</span>,<br>
+                    &nbsp;&nbsp;expiresIn: <span style="color: #ffff00;">'15m'</span><br>
+                    });<br><br>
+                    
+                    <span style="color: #888;">// 4. Verify authentication</span><br>
+                    <span style="color: #ffffff;">const</span> user = <span style="color: #ffffff;">await</span> linklet.<span style="color: #00ff00;">verifyToken</span>(token);<br>
+                    <span style="color: #ffffff;">console</span>.<span style="color: #00ff00;">log</span>(<span style="color: #ffff00;">'User authenticated:'</span>, user);
+                </div>
+                <div style="margin-top: 2rem;">
+                    <a href="#" class="cta-button" style="display: inline-block; width: auto;">View Full Documentation</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="section section-gradient">
+        <div class="container">
+            <h2 class="section-title">Pricing Plans</h2>
+            <p class="section-subtitle">Choose the perfect plan for your authentication needs</p>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3 class="plan-name">Free</h3>
+                    <div class="plan-price">$0</div>
+                    <div class="plan-period">forever</div>
+                    <ul class="plan-features">
+                        <li>100 logins/month</li>
+                        <li>Magic link support</li>
+                        <li>Community support</li>
+                        <li>Basic analytics</li>
+                        <li>Email integration</li>
+                        <li>Standard security</li>
+                    </ul>
+                    <a href="#" class="plan-button">Get Started</a>
+                </div>
+                <div class="pricing-card featured">
+                    <h3 class="plan-name">Pro</h3>
+                    <div class="plan-price">$29</div>
+                    <div class="plan-period">per month</div>
+                    <ul class="plan-features">
+                        <li>10,000 logins/month</li>
+                        <li>Custom branding</li>
+                        <li>Risk analytics</li>
+                        <li>Email & OTP backup</li>
+                        <li>Priority support</li>
+                        <li>Advanced webhooks</li>
+                        <li>API access</li>
+                        <li>Custom domains</li>
+                    </ul>
+                    <a href="#" class="plan-button">Start Free Trial</a>
+                </div>
+                <div class="pricing-card">
+                    <h3 class="plan-name">Enterprise</h3>
+                    <div class="plan-price">Custom</div>
+                    <div class="plan-period">pricing</div>
+                    <ul class="plan-features">
+                        <li>Unlimited logins</li>
+                        <li>Webhooks + SDK</li>
+                        <li>Dedicated support</li>
+                        <li>SLA guarantee</li>
+                        <li>Custom integrations</li>
+                        <li>On-premise deployment</li>
+                        <li>Advanced compliance</li>
+                        <li>Custom AI models</li>
+                    </ul>
+                    <a href="#" class="plan-button">Contact Sales</a>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 3rem;">
+                <p style="color: #cccccc; margin-bottom: 2rem;">All plans include our core security features and 99.9% uptime SLA</p>
+                <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                    <div class="badge">💳 No Setup Fees</div>
+                    <div class="badge">🔄 Cancel Anytime</div>
+                    <div class="badge">📞 24/7 Support</div>
+                    <div class="badge">🚀 Instant Setup</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="background: #000000; padding: 3rem 0; border-top: 1px solid #00ff00;">
+        <div class="container">
+            <div style="text-align: center; color: #cccccc;">
+                <div style="margin-bottom: 2rem;">
+                    <div class="logo" style="font-size: 2rem; margin-bottom: 1rem;">🔗 Linklet</div>
+                    <p style="max-width: 600px; margin: 0 auto;">Making authentication frictionless and secure for millions of users worldwide. Join the passwordless revolution today.</p>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                    <a href="#" style="color: #00ff00; text-decoration: none;">Documentation</a>
+                    <a href="#" style="color: #00ff00; text-decoration: none;">API Reference</a>
+                    <a href="#" style="color: #00ff00; text-decoration: none;">Support</a>
+                    <a href="#" style="color: #00ff00; text-decoration: none;">Privacy Policy</a>
+                    <a href="#" style="color: #00ff00; text-decoration: none;">Terms of Service</a>
+                </div>
+                <p>&copy; 2024 Linklet. All rights reserved. | Making authentication frictionless since 2020</p>
+                <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1rem;">
+                    <a href="#" style="color: #00ff00; font-size: 1.5rem; text-shadow: 0 0 5px #00ff00;">📧</a>
+                    <a href="#" style="color: #00ff00; font-size: 1.5rem; text-shadow: 0 0 5px #00ff00;">🐦</a>
+                    <a href="#" style="color: #00ff00; font-size: 1.5rem; text-shadow: 0 0 5px #00ff00;">💼</a>
+                    <a href="#" style="color: #00ff00; font-size: 1.5rem; text-shadow: 0 0 5px #00ff00;">📱</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const cursorTrail = document.querySelector('.cursor-trail');
+        let mouseX = 0, mouseY = 0;
+        let trailX = 0, trailY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            cursor.style.left = mouseX + 'px';
+            cursor.style.top = mouseY + 'px';
+        });
+
+        // Cursor trail animation
+        function animateTrail() {
+            trailX += (mouseX - trailX) * 0.1;
+            trailY += (mouseY - trailY) * 0.1;
+            cursorTrail.style.left = trailX + 'px';
+            cursorTrail.style.top = trailY + 'px';
+            requestAnimationFrame(animateTrail);
+        }
+        animateTrail();
+
+        // Cursor hover effects
+        document.querySelectorAll('a, button, .nav-dot, .card').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        // Sliding Windows
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const navDots = document.querySelectorAll('.nav-dot');
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active', 'prev');
+                if (i === index) {
+                    slide.classList.add('active');
+                } else if (i < index) {
+                    slide.classList.add('prev');
+                }
+            });
+
+            navDots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        // Auto-advance slides
+        setInterval(nextSlide, 4000);
+
+        // Manual navigation
+        navDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentSlide = index;
+                showSlide(currentSlide);
+            });
+        });
+
+        // Particle System
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            particle.style.animationDuration = (Math.random() * 3 + 5) + 's';
+            document.getElementById('particles').appendChild(particle);
+
+            setTimeout(() => {
+                particle.remove();
+            }, 8000);
+        }
+
+        // Create particles periodically
+        setInterval(createParticle, 300);
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add glow effect on scroll
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const header = document.querySelector('header');
+            
+            if (scrolled > 100) {
+                header.style.boxShadow = '0 2px 20px rgba(0, 255, 0, 0.3)';
+            } else {
+                header.style.boxShadow = 'none';
+            }
+        });
+
+        // Add typing effect to hero text
+        const heroTitle = document.querySelector('.hero h1');
+        const originalText = heroTitle.textContent;
+        heroTitle.textContent = '';
+        
+        let i = 0;
+        function typeWriter() {
+            if (i < originalText.length) {
+                heroTitle.textContent += originalText.charAt(i);
+                i++;
+                setTimeout(typeWriter, 100);
+            }
+        }
+        
+        // Start typing effect after page load
+        window.addEventListener('load', () => {
+            setTimeout(typeWriter, 1000);
+        });
+
+        // Interactive hover effects for cards
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards and sections
+        document.querySelectorAll('.card, .step').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

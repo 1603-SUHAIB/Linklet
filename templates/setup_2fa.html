@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="__CSRF_TOKEN_PLACEHOLDER__">
+    <title>Setup 2FA /// SECURE_NODE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #3b82f6;
+            --dark-bg: #111827;
+            --card-bg: #1f2937;
+            --border-color: rgba(59, 130, 246, 0.2);
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+        }
+
+        body {
+            font-family: 'Chakra Petch', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+            background-size: 35px 35px;
+            animation: moveGrid 60s linear infinite;
+        }
+        
+        @keyframes moveGrid {
+            from { background-position: 0 0; }
+            to { background-position: -35px -35px; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes flicker {
+            0%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(59, 130, 246, 0.5); }
+            50% { opacity: 0.9; text-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+        }
+
+        .pro-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            animation: fadeIn 0.5s ease-out;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.1);
+        }
+
+        .pro-input {
+            background-color: #374151; /* gray-700 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            caret-color: var(--primary-blue);
+            transition: all 0.3s;
+            border-radius: 0.375rem;
+        }
+        .pro-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--dark-bg), 0 0 0 4px var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .pro-btn {
+            background-color: var(--primary-blue);
+            color: white;
+            transition: all 0.2s ease-in-out;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+        .pro-btn:hover {
+            filter: brightness(1.2);
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.5);
+        }
+
+        .section-title {
+            animation: flicker 4s infinite alternate;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col items-center justify-center p-4">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="w-full absolute top-0 left-0 z-50 p-4">
+                {% for category, message in messages %}
+                <div id="flash-message" class="pro-card max-w-md mx-auto p-4 flex justify-between items-center {% if category == 'error' %} bg-red-500/20 border-red-500/30 text-red-300 {% else %} bg-green-500/20 border-green-500/30 text-green-300 {% endif %}">
+                    <span>{{ message }}</span>
+                    <button onclick="this.parentElement.style.display='none'">&times;</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        <main class="w-full max-w-lg">
+             <div class="pro-card p-8 sm:p-12 space-y-8 text-center">
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight text-text-primary section-title uppercase">Setup Two-Factor Authentication</h2>
+                    <p class="mt-2 text-sm text-text-secondary">Scan the QR code with your authenticator app (e.g., Google Authenticator, Authy).</p>
+                </div>
+                <div class="flex flex-col items-center space-y-4">
+                    <div class="p-4 bg-white border rounded-lg">
+                        <img src="data:image/png;base64,{{ qr_code_image }}" alt="QR Code for 2FA setup">
+                    </div>
+                    <p class="text-sm text-text-secondary">Can't scan? Enter this key manually:</p>
+                    <div class="bg-dark-bg p-3 rounded-lg font-mono text-lg tracking-wider text-blue-300 border border-[var(--border-color)]">
+                        {{ secret_key }}
+                    </div>
+                </div>
+                <form action="{{ url_for('setup_2fa') }}" method="POST" class="space-y-6">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <p class="text-text-secondary">After scanning, enter the 6-digit code from your app to verify.</p>
+                    <div>
+                        <label for="otp" class="sr-only">Verification Code</label>
+                        <input id="otp" name="otp" type="text" inputmode="numeric" pattern="[0-9]{6}" required class="pro-input relative block w-full px-3 py-3 text-center text-lg tracking-widest" placeholder="Enter 6-digit code">
+                    </div>
+                    <button type="submit" class="pro-btn group relative flex w-full justify-center py-3 px-4 text-sm uppercase">
+                        Verify & Complete Setup
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

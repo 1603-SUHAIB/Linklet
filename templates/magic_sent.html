@@ -1,0 +1,8 @@
+{% extends "layout.html" %}
+{% block title %}Link Sent{% endblock %}
+{% block content %}
+<div class="auth-icon">✅</div>
+<h1>Check Your Inbox</h1>
+<p>A one-time magic link has been sent to <strong style="color: var(--text-primary);">{{ email }}</strong>. Click the link in the email to log in.</p>
+<p style="font-size: 0.8rem; color: var(--text-secondary);">The link will expire in 5 minutes.</p>
+{% endblock %}

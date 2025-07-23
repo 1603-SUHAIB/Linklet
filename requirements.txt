@@ -1,4 +1,11 @@
 Flask
-python-dotenv
-pyotp
 PyJWT
+pyotp
+python-dotenv
+Authlib
+Flask-PyMongo
+dnspython
+qrcode
+Pillow
+Flask-WTF
+Flask-Limiter

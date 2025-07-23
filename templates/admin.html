@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="__CSRF_TOKEN_PLACEHOLDER__">
+    <title>Admin Panel /// SECURE_NODE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-cyan: #08d9d6;
+            --primary-blue: #252a34;
+            --dark-bg: #0d1117;
+            --card-bg: #161b22;
+            --border-color: rgba(8, 217, 214, 0.2);
+            --text-primary: #eaeaea;
+            --text-secondary: #8b949e;
+        }
+
+        body {
+            font-family: 'Chakra Petch', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            background-image: 
+                linear-gradient(rgba(8, 217, 214, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(8, 217, 214, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pro-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            animation: fadeIn 0.5s ease-out;
+            box-shadow: 0 0 15px rgba(8, 217, 214, 0.1);
+            backdrop-filter: blur(2px);
+        }
+        
+        .pro-header {
+            color: var(--primary-cyan);
+            text-shadow: 0 0 8px rgba(8, 217, 214, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .pro-input {
+            background-color: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            caret-color: var(--primary-cyan);
+            transition: all 0.3s;
+            border-radius: 0.25rem;
+        }
+        .pro-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--dark-bg), 0 0 0 4px var(--primary-cyan);
+            border-color: var(--primary-cyan);
+        }
+        .pro-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .pro-btn {
+            background-color: var(--primary-cyan);
+            color: var(--dark-bg);
+            transition: all 0.2s;
+            border-radius: 0.25rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .pro-btn:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 0 15px rgba(8, 217, 214, 0.5);
+        }
+        
+        .pro-btn-secondary {
+             background-color: var(--primary-blue);
+             color: var(--text-primary);
+             border: 1px solid var(--border-color);
+        }
+        .pro-btn-secondary:hover {
+            background-color: #343a4a;
+            filter: none;
+            box-shadow: none;
+        }
+
+        .pro-table {
+            border-collapse: collapse;
+        }
+        .pro-table th, .pro-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .pro-table thead {
+            background-color: rgba(8, 217, 214, 0.1);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        .pro-table tbody tr {
+            transition: background-color 0.2s;
+        }
+        .pro-table tbody tr:hover {
+            background-color: rgba(8, 217, 214, 0.05);
+        }
+
+        .action-link {
+            color: var(--primary-cyan);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .action-link:hover {
+            filter: brightness(1.2);
+            text-shadow: 0 0 5px var(--primary-cyan);
+        }
+        .action-link-delete {
+            color: #ff6b6b;
+        }
+        .action-link-delete:hover {
+            color: #ff4757;
+        }
+        
+        .pro-modal-content {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-dark-bg text-text-primary">
+    <div class="min-h-screen flex flex-col">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="w-full fixed top-0 left-0 z-50 p-4">
+                {% for category, message in messages %}
+                <div id="flash-message" class="pro-card max-w-md mx-auto p-4 flex justify-between items-center {% if category == 'error' %} bg-red-500/20 border-red-500/30 text-red-300 {% else %} bg-green-500/20 border-green-500/30 text-green-300 {% endif %}">
+                    <span>{{ message }}</span>
+                    <button onclick="this.parentElement.style.display='none'">&times;</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        <main class="flex-grow">
+            <div class="border-b border-white/10">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                    <h1 class="pro-header text-2xl font-bold">Admin Panel</h1>
+                    <div class="flex items-center space-x-4">
+                        <a href="{{ url_for('dashboard') }}" class="pro-btn pro-btn-secondary px-4 py-2 text-sm">Dashboard</a>
+                        <form id="logout-form" class="inline">
+                             <button type="submit" class="pro-btn px-4 py-2 text-sm">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <div class="pro-card p-8 mb-8">
+                    <h2 class="text-xl font-semibold mb-4 uppercase">Create New User</h2>
+                    <form action="{{ url_for('create_user') }}" method="POST" class="grid grid-cols-1 gap-y-6 sm:grid-cols-6 sm:gap-x-6">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="sm:col-span-4">
+                            <label for="email" class="block text-sm font-medium text-text-secondary">Email address</label>
+                            <input type="email" name="email" id="email" required class="pro-input mt-1 block w-full shadow-sm sm:text-sm p-3">
+                        </div>
+                        <div class="sm:col-span-2 flex items-end pb-2">
+                            <div class="relative flex items-start">
+                                <div class="flex h-6 items-center"><input id="is_admin" name="is_admin" type="checkbox" class="h-4 w-4 rounded border-gray-600 bg-gray-700 text-cyan-600 focus:ring-cyan-600"></div>
+                                <div class="ml-3 text-sm leading-6"><label for="is_admin" class="font-medium text-text-primary">Assign Admin Role</label></div>
+                            </div>
+                        </div>
+                        <div class="sm:col-span-6">
+                            <button type="submit" class="pro-btn w-full sm:w-auto px-5 py-2.5 text-sm">Create User</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="pro-card p-8">
+                    <h2 class="text-xl font-semibold mb-4 uppercase">Manage Users</h2>
+                    <div class="overflow-x-auto">
+                        <table class="pro-table min-w-full">
+                            <thead><tr><th>Email</th><th>Status</th><th>Role</th><th>Created On</th><th class="text-center">Actions</th></tr></thead>
+                            <tbody>
+                                {% for user in all_users %}
+                                <tr>
+                                    <td class="text-text-primary">{{ user.email }}</td>
+                                    <td class="text-text-secondary">{% if user.is_approved %}<span class="text-green-400">Approved</span>{% else %}<span class="text-yellow-400">Pending</span>{% endif %}</td>
+                                    <td class="text-text-secondary">{% if user.is_admin %}<span class="text-indigo-400">Admin</span>{% else %}<span>User</span>{% endif %}</td>
+                                    <td class="text-text-secondary">{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td class="text-center text-sm font-medium space-x-6">
+                                        {% if not user.is_approved %}
+                                        <form action="{{ url_for('approve_user', user_id=user._id) }}" method="POST" class="inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="action-link">Approve</button>
+                                        </form>
+                                        {% endif %}
+                                        <a href="{{ url_for('edit_user', user_id=user._id) }}" class="action-link">Edit</a>
+                                        {% if user.email != g.user.email %}
+                                        <button onclick="openDeleteModal('{{ user._id }}', '{{ user.email }}')" class="action-link-delete">Delete</button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="5" class="text-center py-8 text-text-secondary">No users found in the system.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="text-center py-4 text-sm text-gray-500"><p>&copy; 2025 LinkletApp. All rights reserved.</p></footer>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+        <div class="pro-modal-content relative p-8 w-full max-w-md">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-500/20">
+                    <svg class="h-6 w-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <h3 class="text-lg leading-6 font-medium text-text-primary mt-4 uppercase">Delete User</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-text-secondary">Are you sure you want to delete <strong id="user-email-placeholder" class="text-text-primary"></strong>? This action cannot be undone.</p>
+                </div>
+                <div class="mt-4 flex justify-center space-x-4">
+                    <button id="cancel-btn" class="pro-btn pro-btn-secondary w-full py-2" onclick="closeDeleteModal()">
+                        Cancel
+                    </button>
+                    <form id="delete-form" action="" method="POST" class="w-full">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button id="delete-confirm-btn" type="submit" class="pro-btn w-full py-2 bg-red-600 hover:bg-red-700">
+                            Yes, Delete User
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('logout-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const response = await fetch("{{ url_for('logout') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken }
+            });
+            const data = await response.json();
+            if (data.success) { window.location.href = data.redirect_url; }
+        });
+
+        const modal = document.getElementById('delete-modal');
+        const deleteForm = document.getElementById('delete-form');
+        const userEmailPlaceholder = document.getElementById('user-email-placeholder');
+
+        function openDeleteModal(userId, userEmail) {
+            deleteForm.action = `/admin/delete_user/${userId}`;
+            userEmailPlaceholder.textContent = userEmail;
+            modal.classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            modal.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

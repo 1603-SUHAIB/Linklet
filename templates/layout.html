@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINKLET :: SECURE_AUTH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        /* --- CYBERPUNK STYLES --- */
+        :root {
+            --color-bg: #0d0221;
+            --color-primary: #00f6ff;
+            --color-secondary: #ff00f5;
+            --color-tertiary: #fefefe;
+            --color-error: #ff4343;
+            --font-primary: 'Share Tech Mono', monospace;
+            --font-secondary: 'Chakra Petch', sans-serif;
+        }
+
+        @keyframes flicker { 0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 4px var(--color-primary), 0 0 11px var(--color-primary), 0 0 19px var(--color-primary), 0 0 40px var(--color-primary), 0 0 80px var(--color-primary); } 20%, 24%, 55% { text-shadow: none; } }
+        @keyframes scanline { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
+        @keyframes pulse-border { 0% { box-shadow: 0 0 0 0 rgba(0, 246, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 246, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 246, 255, 0); } }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        body {
+            background-color: var(--color-bg);
+            background-image: linear-gradient(rgba(255,255,255,0.02) 2px, transparent 2px), linear-gradient(90deg, rgba(255,255,255,0.02) 2px, transparent 2px);
+            background-size: 4em 4em;
+            font-family: var(--font-primary);
+            color: var(--color-tertiary);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        body::after {
+            content: ' ';
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0) 0, rgba(0,0,0,0.5) 2px, rgba(0,0,0,0) 4px);
+            animation: scanline 10s linear infinite;
+            pointer-events: none;
+            opacity: 0.2;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 450px;
+            border: 2px solid var(--color-primary);
+            padding: 2rem;
+            background: rgba(13, 2, 33, 0.6);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 15px var(--color-primary), inset 0 0 10px var(--color-primary);
+            position: relative;
+        }
+
+        .corner { border: 2px solid var(--color-primary); width: 20px; height: 20px; position: absolute; }
+        .corner.tl { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
+        .corner.tr { top: -2px; right: -2px; border-left: 0; border-bottom: 0; }
+        .corner.bl { bottom: -2px; left: -2px; border-right: 0; border-top: 0; }
+        .corner.br { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
+
+        .title {
+            font-family: var(--font-secondary);
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            animation: flicker 3s linear infinite;
+        }
+        
+        p { text-align: center; color: var(--color-tertiary); opacity: 0.8; margin-bottom: 2rem; line-height: 1.6; }
+        strong { color: var(--color-secondary); font-weight: normal; }
+
+        .form-input {
+            width: 100%;
+            background: transparent;
+            border: 2px solid var(--color-primary);
+            color: var(--color-tertiary);
+            padding: 0.8rem;
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+        .form-input:focus { outline: none; box-shadow: 0 0 10px var(--color-secondary); border-color: var(--color-secondary); }
+        
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            background: transparent;
+            border: 2px solid var(--color-secondary);
+            color: var(--color-secondary);
+            font-family: var(--font-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .btn:hover, .btn:focus { background: var(--color-secondary); color: var(--color-bg); box-shadow: 0 0 20px var(--color-secondary); }
+        
+        .message-box { text-align: center; padding: 1rem; margin-top: 1rem; display: none; }
+        .message-box.error { color: var(--color-error); border: 1px dashed var(--color-error); }
+        .message-box.success { color: var(--color-primary); border: 1px dashed var(--color-primary); }
+
+        .loader {
+            width: 50px; height: 50px;
+            border: 4px solid var(--color-tertiary);
+            border-top: 4px solid var(--color-secondary);
+            border-radius: 50%;
+            animation: rotate 1s linear infinite;
+            margin: 2rem auto;
+            display: none;
+        }
+        [hidden] { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div id="content-wrapper">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const initialState = "{{ initial_state or 'email' }}";
+        const wrapper = document.getElementById('content-wrapper');
+
+        // --- Template Functions ---
+        const getEmailTemplate = () => `
+            <h1 class="title">SECURE_AUTH</h1>
+            <p>Initiate connection protocol. Enter your registered email address.</p>
+            <form id="email-form">
+                <input class="form-input" type="email" id="email" name="email" placeholder="agent@linklet.io" required>
+                <button class="btn" type="submit">Send Access Link</button>
+            </form>
+            <div class="loader"></div>
+            <div class="message-box"></div>
+        `;
+
+        const getLinkSentTemplate = (email) => `
+            <h1 class="title">TRANSMISSION SENT</h1>
+            <p>Access vector dispatched to <strong>${email}</strong>. Check your inbox for a one-time use hyperlink. This terminal will auto-destruct... eventually.</p>
+        `;
+        
+        const getOtpTemplate = () => `
+            <h1 class="title">VERIFICATION</h1>
+            <p>High-risk login detected. A secondary authentication code has been transmitted. Enter it now.</p>
+            <form id="otp-form">
+                <input class="form-input" type="text" id="otp" name="otp" placeholder="_ _ _ _ _ _" required inputmode="numeric" pattern="\\d{6}" maxlength="6">
+                <button class="btn" type="submit">Verify Identity</button>
+            </form>
+            <div class="loader"></div>
+            <div class="message-box"></div>
+        `;
+
+        const getDashboardTemplate = () => `
+            <h1 class="title">ACCESS GRANTED</h1>
+            <p>Welcome to the Grid, agent. All systems are online.</p>
+            <form id="logout-form">
+                 <button class="btn" type="submit">Disconnect</button>
+            </form>
+        `;
+        
+        // --- State Management ---
+        const render = (state) => {
+            if (state === 'email') wrapper.innerHTML = getEmailTemplate();
+            else if (state === 'otp') wrapper.innerHTML = getOtpTemplate();
+            else if (state === 'dashboard') wrapper.innerHTML = getDashboardTemplate();
+            
+            attachFormListeners();
+        };
+        
+        // --- API Calls & Logic ---
+        const handleEmailSubmit = async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const email = form.email.value;
+            const loader = form.nextElementSibling;
+            const messageBox = loader.nextElementSibling;
+
+            loader.style.display = 'block';
+            form.hidden = true;
+            messageBox.style.display = 'none';
+
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            loader.style.display = 'none';
+            if(response.ok) {
+                wrapper.innerHTML = getLinkSentTemplate(email);
+            } else {
+                form.hidden = false;
+                messageBox.textContent = 'ERROR: Could not initiate connection.';
+                messageBox.className = 'message-box error';
+                messageBox.style.display = 'block';
+            }
+        };
+
+        const handleOtpSubmit = async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const otp = form.otp.value;
+            const loader = form.nextElementSibling;
+            const messageBox = loader.nextElementSibling;
+
+            loader.style.display = 'block';
+            messageBox.style.display = 'none';
+
+            const response = await fetch('/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ otp })
+            });
+            
+            loader.style.display = 'none';
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.href = data.redirect_url;
+            } else {
+                messageBox.textContent = data.error || 'SYSTEM FAILURE';
+                messageBox.className = 'message-box error';
+                messageBox.style.display = 'block';
+            }
+        };
+
+        const handleLogoutSubmit = async (e) => {
+            e.preventDefault();
+            const response = await fetch('/logout', { method: 'POST', headers: {'Content-Type': 'application/json'}});
+            const data = await response.json();
+            if (data.success) {
+                 window.location.href = data.redirect_url;
+            }
+        };
+
+        // --- Event Listener Attachment ---
+        const attachFormListeners = () => {
+            const emailForm = document.getElementById('email-form');
+            if(emailForm) emailForm.addEventListener('submit', handleEmailSubmit);
+
+            const otpForm = document.getElementById('otp-form');
+            if(otpForm) otpForm.addEventListener('submit', handleOtpSubmit);
+            
+            const logoutForm = document.getElementById('logout-form');
+            if(logoutForm) logoutForm.addEventListener('submit', handleLogoutSubmit);
+        };
+
+        // --- Initial Render ---
+        render(initialState);
+    });
+    </script>
+</body>
+</html>

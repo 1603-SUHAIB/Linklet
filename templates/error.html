@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="__CSRF_TOKEN_PLACEHOLDER__">
+    <title>Edit User /// SECURE_NODE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-cyan: #08d9d6;
+            --primary-blue: #252a34;
+            --dark-bg: #0d1117;
+            --card-bg: #161b22;
+            --border-color: rgba(8, 217, 214, 0.2);
+            --text-primary: #eaeaea;
+            --text-secondary: #8b949e;
+        }
+
+        body {
+            font-family: 'Chakra Petch', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            background-image: 
+                linear-gradient(rgba(8, 217, 214, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(8, 217, 214, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: moveGrid 60s linear infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(8, 217, 214, 0.7); }
+            50% { opacity: 0.9; text-shadow: 0 0 10px rgba(8, 217, 214, 0.5); }
+        }
+
+        @keyframes moveGrid {
+            from { background-position: 0 0; }
+            to { background-position: -30px -30px; }
+        }
+
+        .pro-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            animation: fadeIn 0.5s ease-out;
+            box-shadow: 0 0 15px rgba(8, 217, 214, 0.1);
+            backdrop-filter: blur(2px);
+        }
+        
+        .pro-header {
+            color: var(--primary-cyan);
+            text-shadow: 0 0 8px rgba(8, 217, 214, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            animation: flicker 4s infinite alternate;
+        }
+
+        .pro-btn {
+            background-color: var(--primary-cyan);
+            color: var(--dark-bg);
+            transition: all 0.2s;
+            border-radius: 0.25rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .pro-btn:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 0 15px rgba(8, 217, 214, 0.5);
+        }
+        
+        .pro-btn-secondary {
+             background-color: var(--primary-blue);
+             color: var(--text-primary);
+             border: 1px solid var(--border-color);
+        }
+        .pro-btn-secondary:hover {
+            background-color: #343a4a;
+            filter: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body class="bg-dark-bg text-text-primary">
+    <div class="min-h-screen flex flex-col">
+        <main class="flex-grow">
+            <div class="border-b border-white/10">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <h1 class="pro-header text-2xl font-bold">Edit User</h1>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-3xl mx-auto pro-card p-8">
+                    <h2 class="text-xl font-semibold text-text-primary mb-2">Editing User: <span class="text-primary-cyan">{{ user_to_edit.email }}</span></h2>
+                    <p class="text-sm text-text-secondary mb-6">Modify user privileges below.</p>
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                            <div class="mb-4 rounded-md p-4 text-sm {% if category == 'error' %}bg-red-500/20 border border-red-500/30 text-red-300{% else %}bg-blue-500/20 border border-blue-500/30 text-blue-300{% endif %}">
+                                {{ message }}
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form action="{{ url_for('edit_user', user_id=user_to_edit._id) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="space-y-4">
+                            <div class="relative flex items-start">
+                                <div class="flex h-6 items-center">
+                                    <input id="is_admin" name="is_admin" type="checkbox" class="h-4 w-4 rounded border-gray-600 bg-gray-700 text-cyan-600 focus:ring-cyan-600" {% if user_to_edit.is_admin %}checked{% endif %}>
+                                </div>
+                                <div class="ml-3 text-sm leading-6">
+                                    <label for="is_admin" class="font-medium text-text-primary">Administrator Role</label>
+                                    <p class="text-text-secondary">Grants full access to the admin panel and all system functions.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 border-t border-[var(--border-color)] pt-5">
+                            <div class="flex justify-end space-x-3">
+                                <a href="{{ url_for('admin_panel') }}" class="pro-btn pro-btn-secondary px-5 py-2.5 text-sm">Cancel</a>
+                                <button type="submit" class="pro-btn px-5 py-2.5 text-sm">Save Changes</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+        <footer class="text-center py-4 text-sm text-gray-500"><p>&copy; 2025 LinkletApp. All rights reserved.</p></footer>
+    </div>
+</body>
+</html>
