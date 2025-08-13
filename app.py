@@ -26,7 +26,7 @@ app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 if not app.config["MONGO_URI"]:
     raise ValueError("No MONGO_URI set for Flask application")
 app.secret_key = os.getenv("FLASK_SECRET", "a_very_strong_and_random_secret_key")
-app.config["WTF_CSRF_TIME_LIMIT"] = 1800 # CSRF token expires in 30 minutes
+app.config["WTF_CSRF_TIME_LIMIT"] = 1800
 EMAIL_ADDRESS = os.getenv("MAIL_USER")
 EMAIL_PASSWORD = os.getenv("MAIL_PASS")
 JWT_SECRET = os.getenv("JWT_SECRET", "a_secure_jwt_secret_key")
@@ -120,7 +120,7 @@ def update_user_on_login(email, user_agent, ip_address):
     known_user_agents = user.get("known_user_agents", [])
     if user_agent not in known_user_agents:
         subject = "Security Alert: New Login to Your Linklet Account"
-        body = f"Hello,\n\nWe detected a new login to your account from a device we don't recognize.\n\nDevice: {user_agent}\nIP Address: {ip_address}\nTime: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC\n\nIf this was you, you can safely ignore this email. If you don't recognize this activity, please secure your account immediately.\n\nThanks,\nThe Linklet Team"
+        body = f"Hello,\n\nWe detected a new login to your account from a device we don't recognize.\n\nDevice: {user_agent}\nTime: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC\n\nIf this was you, you can safely ignore this email. If you don't recognize this activity, please secure your account immediately.\n\nThanks,\nThe Linklet Team"
         send_email(email, subject, body)
         update_operation["$push"] = {"known_user_agents": user_agent}
     mongo.db.users.update_one({"email": email}, update_operation)
