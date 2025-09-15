@@ -138,7 +138,7 @@ def inject_csrf_token(response):
     return response
 
 # ========================================
-# ⚡️ Captcha Route
+#  Captcha Route
 # ========================================
 @app.route('/api/rotation-captcha', methods=['GET'])
 @limiter.limit("30 per minute")
@@ -158,7 +158,7 @@ def get_rotation_captcha_challenge():
     })
 
 # ========================================
-# ⚡️ Flask Routes
+#  Flask Routes
 # ========================================
 @app.route('/')
 def home():
@@ -260,7 +260,6 @@ def issue_magic_link():
     email = session.get('2fa_passed_email')
     if not email: return jsonify({"success": False, "error": "Authentication failed. Please start over."}), 403
     token = create_magic_link_token(email)
-    # FIX: Changed 'verify-link' to 'verify_link' to match the function name.
     magic_link = url_for('verify_link', token=token, _external=True)
     subject = "Your Login Link – Linklet"
     body = f"Hello,\n\nClick the login link below to sign in:\n\n{magic_link}\n\nThis link is for one-time use and will expire in 5 minutes."
@@ -303,7 +302,7 @@ def auth_callback():
         flash("You have been logged in successfully!", "success")
         return redirect(get_redirect_url_for_user(expected_email))
     except Exception as e:
-        print(f"❌ OAuth callback error: {e}")
+        print(f"OAuth callback error: {e}")
         return render_template("error.html", error_title="Authentication Error", error_message="An error occurred during Google authentication."), 500
 
 @app.route('/dashboard')
